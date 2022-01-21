@@ -43,7 +43,8 @@ class MyPainter extends CustomPainter {
 
     for (var y = 0; y < array.length; y++) {
       for (var x = 0; x < array[y].length; x++) {
-        final Rect r1 = Offset(x * tileWidth, y * tileHeight) & Size(tileWidth, tileHeight);
+        var offset = Offset(x * tileWidth, y * tileHeight);
+        final Rect r1 = offset & Size(tileWidth, tileHeight);
 
         // the gradient shows the filled amount by having both stops at the [percent]
         final double percent = array[y][x];
@@ -57,6 +58,16 @@ class MyPainter extends CustomPainter {
         var paint3 = Paint()
           ..color = Colors.white30
           ..style = PaintingStyle.stroke;
+
+        if (showLevels) {
+          final span = TextSpan(
+            text: percent.toStringAsFixed(2),
+            style: const TextStyle(color: Colors.white54),
+          );
+          final painter = TextPainter(text: span, textDirection: TextDirection.ltr);
+          painter.layout();
+          painter.paint(canvas, offset);
+        }
 
         // paint
         canvas.drawRect(r1, paint2);
