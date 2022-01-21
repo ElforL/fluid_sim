@@ -91,7 +91,6 @@ class Simulator extends ChangeNotifier {
         if (left != -1 && right != -1) {
           // C is not on the border
           if (left < cell && right < cell) {
-            print('split $left $cell $right');
             final nextVal = (cell + left + right) / 3;
             _addToCell(x, y, nextVal - cell); // set c
             _addToCell(x - 1, y, nextVal - left); // set l
