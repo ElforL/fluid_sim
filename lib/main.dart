@@ -60,20 +60,35 @@ class _MyHomePageState extends State<MyHomePage> {
                     letterSpacing: 2,
                   ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: ClipRRect(
-                child: SizedBox(
-                  width: 700,
-                  height: 700,
-                  child: CustomPaint(
-                    painter: MyPainter(
-                      sim: sim,
-                      tileWidth: 70,
-                      tileHeight: 70,
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: _buildControls(),
+                  ),
+                  Flexible(
+                    flex: 5,
+                    child: FittedBox(
+                      child: ClipRRect(
+                        child: SizedBox(
+                          width: 700,
+                          height: 700,
+                          child: CustomPaint(
+                            painter: MyPainter(
+                              sim: sim,
+                              tileWidth: 70,
+                              tileHeight: 70,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  Flexible(
+                    child: Container(),
+                  ),
+                ],
               ),
             ),
             AnimatedBuilder(
@@ -88,43 +103,49 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {
-              setState(() {
-                sim.stop();
-              });
-              populateSim();
-            },
-            tooltip: 'Replay',
-            child: const Icon(Icons.replay_rounded),
-          ),
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {
-              sim.tick();
-            },
-            tooltip: 'Skip',
-            child: const Icon(Icons.skip_next_rounded),
-          ),
-          FloatingActionButton(
-            mini: true,
-            onPressed: () {
-              if (sim.isRunning) {
-                sim.pause();
-              } else {
-                sim.start();
-              }
-              setState(() {});
-            },
-            tooltip: 'Start/Pause',
-            child: Icon(sim.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
-          ),
-        ],
-      ),
+      floatingActionButton: _buildFABsControls(),
     );
   }
+
+  Widget _buildFABsControls() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FloatingActionButton(
+          mini: true,
+          onPressed: () {
+            setState(() {
+              sim.stop();
+            });
+            populateSim();
+          },
+          tooltip: 'Replay',
+          child: const Icon(Icons.replay_rounded),
+        ),
+        FloatingActionButton(
+          mini: true,
+          onPressed: () {
+            sim.tick();
+          },
+          tooltip: 'Skip',
+          child: const Icon(Icons.skip_next_rounded),
+        ),
+        FloatingActionButton(
+          mini: true,
+          onPressed: () {
+            if (sim.isRunning) {
+              sim.pause();
+            } else {
+              sim.start();
+            }
+            setState(() {});
+          },
+          tooltip: 'Start/Pause',
+          child: Icon(sim.isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildControls() => Container();
 }
