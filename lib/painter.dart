@@ -35,12 +35,12 @@ class MyPainter extends CustomPainter {
       );
     }
 
-    for (var i = 0; i < array.length; i++) {
-      for (var j = 0; j < array[i].length; j++) {
-        final Rect r1 = Offset(i * tileHeight, j * tileWidth) & Size(tileWidth, tileHeight);
+    for (var y = 0; y < array.length; y++) {
+      for (var x = 0; x < array[y].length; x++) {
+        final Rect r1 = Offset(x * tileWidth, y * tileHeight) & Size(tileWidth, tileHeight);
 
         // the gradient shows the filled amount by having both stops at the [percent]
-        final double percent = array[j][i];
+        final double percent = array[y][x];
         final gradient = LinearGradient(
           transform: const GradientRotation(-math.pi / 2),
           stops: [percent, percent],
