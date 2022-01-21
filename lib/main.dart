@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -32,6 +34,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool isPlaying = false;
 
+  late List<List<double>> array;
+
+  @override
+  void initState() {
+    array = List.generate(20, (index) => List.generate(20, (index) => math.Random().nextDouble()));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,8 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 700,
               child: CustomPaint(
                 painter: MyPainter(
-                  tileWidth: 20,
-                  tileHeight: 20,
+                  array,
+                  tileWidth: 35,
+                  tileHeight: 35,
                 ),
               ),
             ),
@@ -69,13 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class MyPainter extends CustomPainter {
-  MyPainter({
+  MyPainter(
+    this.array, {
+    Listenable? repaint,
+    this.fillColor = Colors.white60,
+    this.emptyColor = Colors.white12,
     required this.tileWidth,
     required this.tileHeight,
     this.backgroundColor = Colors.black38,
-  }) : super();
+  }) : super(repaint: repaint);
+
+  final List<List<double>> array;
 
   final Color? backgroundColor;
+
+  final Color fillColor;
+  final Color emptyColor;
 
   final double tileWidth;
   final double tileHeight;
@@ -91,13 +111,30 @@ class MyPainter extends CustomPainter {
       );
     }
 
-    for (var i = 0; i <= size.width ~/ tileWidth; i++) {
-      for (var j = 0; j <= size.height ~/ tileHeight; j++) {
+    for (var i = 0; i < array.length; i++) {
+      for (var j = 0; j < array[i].length; j++) {
         final Rect r1 = Offset(i * tileWidth, j * tileHeight) & Size(tileWidth, tileHeight);
 
+        // the gradient shows the filled amount by having both stops at the [percent]
+        final double percent = array[i][j];
+        final gradient = LinearGradient(
+          transform: const GradientRotation(-math.pi / 2),
+          stops: [
+            percent,
+            percent,
+          ],
+          colors: [
+            fillColor,
+            emptyColor,
+          ],
+        );
+        // apply shader
+        var paint2 = Paint()..shader = gradient.createShader(r1);
+
+        // paint
         canvas.drawRect(
           r1,
-          Paint()..color = (i + j).isOdd ? Colors.white24 : Colors.white54,
+          paint2,
         );
       }
     }
