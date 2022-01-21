@@ -1,6 +1,7 @@
 import 'package:fluid_sim/painter.dart';
 import 'package:fluid_sim/simulator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,19 +35,49 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late Simulator sim;
 
+  late TextEditingController _widthController;
+  late TextEditingController _heightController;
+  int get inputWidth => int.parse(_widthController.text);
+  int get inputHeight => int.parse(_heightController.text);
+
+  bool showGrid = false;
+
   @override
   void initState() {
-    sim = Simulator(10, 10);
+    sim = Simulator(20, 20);
     populateSim();
+
+    _widthController = TextEditingController(text: sim.width.toString());
+    _heightController = TextEditingController(text: sim.height.toString());
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    sim.dispose();
+    super.dispose();
+  }
+
   void populateSim() {
-    sim.setCell(4, 4, 1);
+    sim.setCell(4, 0, 1);
+    int num = 5;
+    int h = 1;
+    sim.setCell(num++, 0, 1);
+    sim.setCell(num++, 0, 1);
+    sim.setCell(num++, 0, 1);
+    sim.setCell(num++, h, 1);
+    sim.setCell(num++, h, 1);
+    sim.setCell(num++, h++, 1);
+    sim.setCell(num, h++, 1);
+    sim.setCell(num, h++, 1);
   }
 
   @override
   Widget build(BuildContext context) {
+    // _widthController.text = sim.width.toString();
+    // _heightController.text = sim.height.toString();
     return Scaffold(
       body: Center(
         child: Column(
@@ -61,34 +92,36 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
             ),
             Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: _buildControls(),
-                  ),
-                  Flexible(
-                    flex: 5,
-                    child: FittedBox(
-                      child: ClipRRect(
-                        child: SizedBox(
-                          width: 700,
-                          height: 700,
-                          child: CustomPaint(
-                            painter: MyPainter(
-                              sim: sim,
-                              tileWidth: 70,
-                              tileHeight: 70,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: _buildDebugControls()),
+                    Flexible(
+                      flex: 3,
+                      child: FittedBox(
+                        child: ClipRRect(
+                          child: SizedBox(
+                            width: 700,
+                            height: 700,
+                            child: CustomPaint(
+                              painter: MyPainter(
+                                sim: sim,
+                                tileWidth: 35,
+                                tileHeight: 35,
+                                showGrid: showGrid,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Flexible(
-                    child: Container(),
-                  ),
-                ],
+                    Flexible(
+                      child: Container(),
+                    ),
+                  ],
+                ),
               ),
             ),
             AnimatedBuilder(
@@ -147,5 +180,84 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildControls() => Container();
+  Widget _buildDebugControls() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          title: Text('Show Grid'),
+          trailing: Switch(
+            value: showGrid,
+            onChanged: (val) {
+              setState(() {
+                showGrid = val;
+              });
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildSizeControls() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        OptionTile(
+          sim: sim,
+          title: const Text('Width:'),
+          controller: _widthController,
+        ),
+        OptionTile(
+          sim: sim,
+          title: const Text('Height:'),
+          controller: _heightController,
+        ),
+        Center(
+          child: OutlinedButton(
+            child: Text('Set'),
+            onPressed: () {
+              sim.stop();
+              sim.changeWidthHeight(
+                newWidth: inputWidth,
+                newHeight: inputHeight,
+              );
+              populateSim();
+              setState(() {});
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OptionTile extends StatelessWidget {
+  const OptionTile({
+    Key? key,
+    required this.sim,
+    required this.controller,
+    required this.title,
+  }) : super(key: key);
+
+  final Simulator sim;
+  final Widget? title;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      enabled: !sim.isRunning,
+      title: title,
+      trailing: SizedBox(
+        width: 40,
+        child: TextField(
+          controller: controller,
+          enabled: !sim.isRunning,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly], // Only numbers can be entered
+        ),
+      ),
+    );
+  }
 }
