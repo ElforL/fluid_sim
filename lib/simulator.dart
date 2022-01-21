@@ -10,10 +10,17 @@ class Simulator extends ChangeNotifier {
   /// The duration that the simulator will wait before starting the next tick
   Duration tickDuration;
   int iteration = 0;
-  final int width, height;
+  int width, height;
   List<List<double>> array;
   late List<List<double>> nextArray;
   bool isRunning = false;
+
+  void changeWidthHeight({int? newWidth, int? newHeight}) {
+    if (isRunning) throw Exception("Can't change size while running");
+    width = newWidth ?? width;
+    height = newHeight ?? height;
+    array = List.generate(height, (i) => List.filled(width, 0));
+  }
 
   void start() {
     isRunning = true;
