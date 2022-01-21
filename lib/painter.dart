@@ -49,6 +49,7 @@ class MyPainter extends CustomPainter {
         // the gradient shows the filled amount by having both stops at the [percent]
         final double percent = array[y][x];
         final gradient = LinearGradient(
+          tileMode: TileMode.decal,
           transform: const GradientRotation(-math.pi / 2),
           stops: [percent, percent],
           colors: [fillColor, emptyColor],

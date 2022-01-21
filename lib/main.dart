@@ -117,8 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: CustomPaint(
                                 painter: MyPainter(
                                   sim: sim,
-                                  tileWidth: 35,
-                                  tileHeight: 35,
+                                  tileWidth: 700 / sim.width,
+                                  tileHeight: 700 / sim.height,
                                   showGrid: showGrid,
                                   showLevels: showLevels,
                                 ),
@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       Flexible(
-                        child: Container(),
+                        child: _buildSizeControls(),
                       ),
                     ],
                   ),
@@ -249,8 +249,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 newWidth: inputWidth,
                 newHeight: inputHeight,
               );
-              populateSim();
               setState(() {});
+              populateSim();
             },
           ),
         ),
