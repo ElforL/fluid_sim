@@ -10,6 +10,8 @@ class MyPainter extends CustomPainter {
     this.emptyColor = Colors.white12,
     required this.tileWidth,
     required this.tileHeight,
+    this.showGrid = false,
+    this.showLevels = false,
     this.backgroundColor = Colors.black38,
   }) : super(repaint: sim);
 
@@ -23,6 +25,10 @@ class MyPainter extends CustomPainter {
 
   final double tileWidth;
   final double tileHeight;
+
+  bool showGrid;
+  // TODO implement
+  bool showLevels;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -48,9 +54,13 @@ class MyPainter extends CustomPainter {
         );
         // apply shader
         var paint2 = Paint()..shader = gradient.createShader(r1);
+        var paint3 = Paint()
+          ..color = Colors.white30
+          ..style = PaintingStyle.stroke;
 
         // paint
         canvas.drawRect(r1, paint2);
+        if (showGrid) canvas.drawRect(r1, paint3);
       }
     }
   }
