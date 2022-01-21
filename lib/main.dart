@@ -37,10 +37,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late TextEditingController _widthController;
   late TextEditingController _heightController;
+  late TextEditingController _tickMsController;
   int get inputWidth => int.parse(_widthController.text);
   int get inputHeight => int.parse(_heightController.text);
+  int get inputTickMs => int.parse(_tickMsController.text);
 
   bool showGrid = false;
+  bool showLevels = false;
 
   @override
   void initState() {
@@ -49,6 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _widthController = TextEditingController(text: sim.width.toString());
     _heightController = TextEditingController(text: sim.height.toString());
+    _tickMsController = TextEditingController(text: sim.tickDuration.inMilliseconds.toString())
+      ..addListener(() {
+        if (!sim.isRunning) sim.tickDuration = Duration(milliseconds: inputTickMs);
+      });
     super.initState();
   }
 
@@ -56,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _widthController.dispose();
     _heightController.dispose();
+    _tickMsController.dispose();
     sim.dispose();
     super.dispose();
   }
@@ -79,61 +87,64 @@ class _MyHomePageState extends State<MyHomePage> {
     // _widthController.text = sim.width.toString();
     // _heightController.text = sim.height.toString();
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Liquid Simulation'.toUpperCase(),
-              style: Theme.of(context).textTheme.headline4?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(child: _buildDebugControls()),
-                    Flexible(
-                      flex: 3,
-                      child: FittedBox(
-                        child: ClipRRect(
-                          child: SizedBox(
-                            width: 700,
-                            height: 700,
-                            child: CustomPaint(
-                              painter: MyPainter(
-                                sim: sim,
-                                tileWidth: 35,
-                                tileHeight: 35,
-                                showGrid: showGrid,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Liquid Simulation'.toUpperCase(),
+                style: Theme.of(context).textTheme.headline4?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(child: _buildDebugControls()),
+                      Flexible(
+                        flex: 3,
+                        child: FittedBox(
+                          child: ClipRRect(
+                            child: SizedBox(
+                              width: 700,
+                              height: 700,
+                              child: CustomPaint(
+                                painter: MyPainter(
+                                  sim: sim,
+                                  tileWidth: 35,
+                                  tileHeight: 35,
+                                  showGrid: showGrid,
+                                  showLevels: showLevels,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Flexible(
-                      child: Container(),
-                    ),
-                  ],
+                      Flexible(
+                        child: Container(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            AnimatedBuilder(
-              animation: sim,
-              builder: (context, child) {
-                return Text(
-                  'Current iteration: ${sim.iteration}',
-                  style: Theme.of(context).textTheme.subtitle1,
-                );
-              },
-            ),
-          ],
+              AnimatedBuilder(
+                animation: sim,
+                builder: (context, child) {
+                  return Text(
+                    'Current iteration: ${sim.iteration}',
+                    style: Theme.of(context).textTheme.subtitle1,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFABsControls(),
@@ -185,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          title: Text('Show Grid'),
+          title: const Text('Show Grid'),
           trailing: Switch(
             value: showGrid,
             onChanged: (val) {
@@ -194,7 +205,23 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
           ),
-        )
+        ),
+        ListTile(
+          title: const Text('Show Levels'),
+          trailing: Switch(
+            value: showLevels,
+            onChanged: (val) {
+              setState(() {
+                showLevels = val;
+              });
+            },
+          ),
+        ),
+        OptionTile(
+          title: Text('Tick duration ${sim.isRunning ? '🔒' : ''}'),
+          enabled: !sim.isRunning,
+          controller: _tickMsController,
+        ),
       ],
     );
   }
@@ -204,18 +231,18 @@ class _MyHomePageState extends State<MyHomePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         OptionTile(
-          sim: sim,
+          enabled: !sim.isRunning,
           title: const Text('Width:'),
           controller: _widthController,
         ),
         OptionTile(
-          sim: sim,
+          enabled: !sim.isRunning,
           title: const Text('Height:'),
           controller: _heightController,
         ),
         Center(
           child: OutlinedButton(
-            child: Text('Set'),
+            child: const Text('SET'),
             onPressed: () {
               sim.stop();
               sim.changeWidthHeight(
@@ -235,25 +262,25 @@ class _MyHomePageState extends State<MyHomePage> {
 class OptionTile extends StatelessWidget {
   const OptionTile({
     Key? key,
-    required this.sim,
+    this.enabled = true,
     required this.controller,
     required this.title,
   }) : super(key: key);
 
-  final Simulator sim;
+  final bool enabled;
   final Widget? title;
   final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      enabled: !sim.isRunning,
+      enabled: enabled,
       title: title,
       trailing: SizedBox(
         width: 40,
         child: TextField(
           controller: controller,
-          enabled: !sim.isRunning,
+          enabled: enabled,
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly], // Only numbers can be entered
         ),
