@@ -65,8 +65,8 @@ class Simulator extends ChangeNotifier {
     );
     ++iteration;
 
-    for (var y = 0; y < width; y++) {
-      for (var x = 0; x < height; x++) {
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
         final cell = double.parse(array[y][x].toStringAsFixed(4));
         if (cell < 0) throw Exception('Negative value cell. cell $x,$y had the value $cell in iteration $iteration');
 
