@@ -3,9 +3,12 @@ import 'package:flutter/cupertino.dart';
 class Simulator extends ChangeNotifier {
   Simulator(
     this.width,
-    this.height,
-  ) : array = List.generate(height, (i) => List.filled(width, 0));
+    this.height, {
+    this.tickDuration = const Duration(milliseconds: 100),
+  }) : array = List.generate(height, (i) => List.filled(width, 0));
 
+  /// The duration that the simulator will wait before starting the next tick
+  Duration tickDuration;
   int iteration = 0;
   final int width, height;
   List<List<double>> array;
@@ -125,7 +128,7 @@ class Simulator extends ChangeNotifier {
     } // end of all cells
     array = nextArray;
     notifyListeners();
-    await Future.delayed(Duration(milliseconds: 200));
+    await Future.delayed(tickDuration);
   }
 
   // cancelable operation/future
