@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Simulator extends ChangeNotifier {
   Simulator(
     this.width,
     this.height, {
-    this.tickDuration = const Duration(milliseconds: 100),
+    this.tickDuration = const Duration(milliseconds: 50),
   }) : array = List.generate(height, (i) => List.filled(width, 0));
 
   /// The duration that the simulator will wait before starting the next tick
