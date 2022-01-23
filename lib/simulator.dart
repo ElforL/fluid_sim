@@ -54,6 +54,11 @@ class Simulator extends ChangeNotifier {
     notifyListeners();
   }
 
+  setCellLevel(int x, int y, double lvl) {
+    array[y][x].level = lvl;
+    notifyListeners();
+  }
+
   /// a single tick
   ///
   /// ### Cell rules:
@@ -163,18 +168,11 @@ class Simulator extends ChangeNotifier {
     await Future.delayed(tickDuration);
   }
 
-  // cancelable operation/future
-  // https://stackoverflow.com/questions/17552757/is-there-any-way-to-cancel-a-dart-future/54905898
   /// The main loop
   void _loop() async {
     while (isRunning) {
       await tick();
     }
-  }
-
-  setCellLevel(int x, int y, double lvl) {
-    array[y][x].level = lvl;
-    notifyListeners();
   }
 
   _addDiff(int x, int y, double diff) {
