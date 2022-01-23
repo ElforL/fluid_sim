@@ -86,12 +86,8 @@ class Simulator extends ChangeNotifier {
             _addToCell(x, y, -(1 - below)); // c -= (1 - b)
             _addToCell(x, y + 1, (1 - below)); // b = 1
           } else {
-            // print('-' * 20);
-            // print('Befor: ${array[y][x]}, ${array[y + 1][x]}');
             _addToCell(x, y, -cell); // c = 0
             _addToCell(x, y + 1, cell); // b += c
-            // print('after: ${array[y][x]}, ${array[y + 1][x]}');
-            // print('array: ${array[y + 1][x]}\nnext array: ${nextArray[y + 1][x]}');
           }
           continue;
         }
