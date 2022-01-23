@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:fluid_sim/simulator.dart';
 import 'package:flutter/material.dart';
 
+import 'models/cell.dart';
+
 class MyPainter extends CustomPainter {
   MyPainter({
     required this.sim,
@@ -16,7 +18,7 @@ class MyPainter extends CustomPainter {
   }) : super(repaint: sim);
 
   final Simulator sim;
-  List<List<double>> get array => sim.array;
+  List<List<Cell>> get array => sim.array;
 
   final Color? backgroundColor;
 
@@ -46,7 +48,7 @@ class MyPainter extends CustomPainter {
         final Rect r1 = offset & Size(tileWidth, tileHeight);
 
         // the gradient shows the filled amount by having both stops at the [percent]
-        final double percent = array[y][x];
+        final double percent = array[y][x].level;
         final gradient = LinearGradient(
           tileMode: TileMode.decal,
           transform: const GradientRotation(-math.pi / 2),

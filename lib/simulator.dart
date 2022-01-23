@@ -1,25 +1,40 @@
 import 'package:flutter/material.dart';
 
+import 'models/cell.dart';
+
 class Simulator extends ChangeNotifier {
   Simulator(
     this.width,
     this.height, {
     this.tickDuration = const Duration(milliseconds: 50),
-  }) : array = List.generate(height, (i) => List.filled(width, 0));
+  })  : array = [],
+        diffs = [] {
+    resetDiffs();
+    fillArrayWithCells(array, height, width);
+  }
+
+  static const minLvl = 0.001;
+  static const maxLvl = 1;
 
   /// The duration that the simulator will wait before starting the next tick
   Duration tickDuration;
+
+  /// the number of the current iteration.
   int iteration = 0;
+
   int width, height;
-  List<List<double>> array;
-  late List<List<double>> nextArray;
+
+  final List<List<Cell>> array;
+  final List<List<double>> diffs;
+
+  /// is the simulation currently running (i.e., the main loop is active);
   bool isRunning = false;
 
   void changeWidthHeight({int? newWidth, int? newHeight}) {
     if (isRunning) throw Exception("Can't change size while running");
     width = newWidth ?? width;
     height = newHeight ?? height;
-    array = List.generate(height, (i) => List.filled(width, 0));
+    fillArrayWithCells(array, height, width);
   }
 
   void start() {
@@ -35,7 +50,7 @@ class Simulator extends ChangeNotifier {
   void stop() {
     iteration = 0;
     isRunning = false;
-    array = List.generate(height, (i) => List.filled(width, 0));
+    fillArrayWithCells(array, height, width);
     notifyListeners();
   }
 
@@ -66,70 +81,84 @@ class Simulator extends ChangeNotifier {
   /// 4. if only one side cell (o) < c
   ///     * λo = (c - o) / 2
   Future<void> tick() async {
-    nextArray = List.generate(
-      array.length,
-      (index) => List.from(array[index]),
-    );
+    resetDiffs();
     ++iteration;
 
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
-        final cell = double.parse(array[y][x].toStringAsFixed(4));
-        if (cell < 0) throw Exception('Negative value cell. cell $x,$y had the value $cell in iteration $iteration');
+        final cell = array[y][x];
+        if (cell.level < 0) {
+          throw Exception('Negative value cell. cell $x,$y had the value $cell in iteration $iteration');
+        }
 
-        if (cell == 0) continue;
+        // skip the cell if it's solid or its level is less than the minimum level.
+        if (cell.type == CellType.solid || cell.level <= minLvl) {
+          cell.level = 0;
+          continue;
+        }
 
         // 1
-        double below = double.parse(_cellBelow(x, y).toStringAsFixed(4));
-        if (below < 1 && below != -1) {
-          if (cell > 1 - below) {
-            _addToCell(x, y, -(1 - below)); // c -= (1 - b)
-            _addToCell(x, y + 1, (1 - below)); // b = 1
+        Cell? below = _cellBelow(x, y);
+
+        if (below != null && below.level < 1) {
+          if (cell.level > 1 - below.level) {
+            final diff = 1 - below.level;
+            _addDiff(x, y, -diff); // c -= (1 - b)
+            _addDiff(x, y + 1, diff); // b = 1
           } else {
-            _addToCell(x, y, -cell); // c = 0
-            _addToCell(x, y + 1, cell); // b += c
+            _addDiff(x, y, -cell.level); // c = 0
+            _addDiff(x, y + 1, cell.level); // b += c
           }
           continue;
         }
 
-        double left = double.parse(_cellLeft(x, y).toStringAsFixed(4));
-        double right = double.parse(_cellRight(x, y).toStringAsFixed(4));
-        if (left != -1 && right != -1) {
+        Cell? left = _cellLeft(x, y);
+        Cell? right = _cellRight(x, y);
+        if (left != null && right != null) {
           // C is not on the border
-          if (left < cell && right < cell) {
-            final nextVal = (cell + left + right) / 3;
-            _addToCell(x, y, nextVal - cell); // set c
-            _addToCell(x - 1, y, nextVal - left); // set l
-            _addToCell(x + 1, y, nextVal - right); // set r
+          if (left.level < cell.level && right.level < cell.level) {
+            final nextVal = (cell.level + left.level + right.level) / 3;
+            _addDiff(x, y, nextVal - cell.level); // set c
+            _addDiff(x - 1, y, nextVal - left.level); // set l
+            _addDiff(x + 1, y, nextVal - right.level); // set r
             continue;
           }
         }
 
-        if (left == -1 || left >= cell) {
+        if (left == null || left.level >= cell.level) {
           // ignore left
-          if (right != -1 && right < cell) {
+          if (right != null && right.level < cell.level) {
             /// diff = (c - r) / 2.
             /// this is the amount that will go from c to r
-            final diff = (cell - right) / 2;
-            _addToCell(x, y, -diff);
-            _addToCell(x + 1, y, diff);
+            final diff = (cell.level - right.level) / 2;
+            _addDiff(x, y, -diff);
+            _addDiff(x + 1, y, diff);
             continue;
           }
         }
-        if (right == -1 || right >= cell) {
+        if (right == null || right.level >= cell.level) {
           // ignore right
-          if (left != -1 && left < cell) {
+          if (left != null && left.level < cell.level) {
             /// diff = (c - l) / 2.
             /// this is the amount that will go from c to l
-            final diff = (cell - left) / 2;
-            _addToCell(x, y, -diff);
-            _addToCell(x - 1, y, diff);
+            final diff = (cell.level - left.level) / 2;
+            _addDiff(x, y, -diff);
+            _addDiff(x - 1, y, diff);
             continue;
           }
         }
       } // end of cell
     } // end of all cells
-    array = nextArray;
+
+    for (var y = 0; y < array.length; y++) {
+      for (var x = 0; x < array[y].length; x++) {
+        var cell = array[y][x];
+
+        cell.level += diffs[y][x];
+        if (cell.level < minLvl) cell.level = 0;
+      }
+    }
+
     notifyListeners();
     await Future.delayed(tickDuration);
   }
@@ -143,39 +172,39 @@ class Simulator extends ChangeNotifier {
     }
   }
 
-  setCell(int x, int y, double value) {
-    array[y][x] = value;
+  setCellLevel(int x, int y, double lvl) {
+    array[y][x].level = lvl;
     notifyListeners();
   }
 
-  _addToCell(int x, int y, double diff) {
-    nextArray[y][x] += diff;
+  _addDiff(int x, int y, double diff) {
+    diffs[y][x] += diff;
   }
 
   /// returns the value of the cell below x,y
   ///
   /// returns -1 if it doesn't exist
-  double _cellBelow(int x, int y) {
+  Cell? _cellBelow(int x, int y) {
     _inBoundCheck(x, y);
-    if (y == height - 1) return -1;
+    if (y == height - 1) return null;
     return array[y + 1][x];
   }
 
   /// returns the value of the cell to the left of x,y
   ///
   /// returns -1 if it doesn't exist
-  double _cellLeft(int x, int y) {
+  Cell? _cellLeft(int x, int y) {
     _inBoundCheck(x, y);
-    if (x == 0) return -1;
+    if (x == 0) return null;
     return array[y][x - 1];
   }
 
   /// returns the value of the cell to the right of x,y
   ///
   /// returns -1 if it doesn't exist
-  double _cellRight(int x, int y) {
+  Cell? _cellRight(int x, int y) {
     _inBoundCheck(x, y);
-    if (x == width - 1) return -1;
+    if (x == width - 1) return null;
     return array[y][x + 1];
   }
 
@@ -183,6 +212,41 @@ class Simulator extends ChangeNotifier {
   void _inBoundCheck(int x, int y) {
     if (x >= width || x < 0 || y >= height || y < 0) {
       throw ArgumentError('Index out of bounds. ($x,$y) in a ${width}x$height array.');
+    }
+  }
+
+  /// Modifies [array] to be a [height]x[width] 2D list filled with `Cell(x,y)`
+  static void fillArrayWithCells(final List<List<Cell>> array, int height, int width) {
+    // Clear te array.
+    // This make the array = []
+    array.removeRange(0, array.length);
+
+    // populate it
+    for (var y = 0; y < height; y++) {
+      // add a new row
+      array.insert(y, []);
+
+      // fill the row
+      for (var x = 0; x < width; x++) {
+        array[y].insert(x, Cell(x, y));
+      }
+    }
+  }
+
+  void resetDiffs() {
+    // Clear te array.
+    // This will make diffs = []
+    diffs.removeRange(0, diffs.length);
+
+    // populate it
+    for (var y = 0; y < array.length; y++) {
+      // add a new row
+      diffs.insert(y, []);
+
+      // fill the row
+      for (var x = 0; x < array[y].length; x++) {
+        diffs[y].insert(x, 0.0);
+      }
     }
   }
 }

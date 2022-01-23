@@ -69,17 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void populateSim() {
-    sim.setCell(4, 0, 1);
+    sim.setCellLevel(4, 0, 1);
     int num = 5;
     int h = 1;
-    sim.setCell(num++, 0, 1);
-    sim.setCell(num++, 0, 1);
-    sim.setCell(num++, 0, 1);
-    sim.setCell(num++, h, 1);
-    sim.setCell(num++, h, 1);
-    sim.setCell(num++, h++, 1);
-    sim.setCell(num, h++, 1);
-    sim.setCell(num, h++, 1);
+    sim.setCellLevel(num++, 0, 1);
+    sim.setCellLevel(num++, 0, 1);
+    sim.setCellLevel(num++, 0, 1);
+    sim.setCellLevel(num++, h, 1);
+    sim.setCellLevel(num++, h, 1);
+    sim.setCellLevel(num++, h++, 1);
+    sim.setCellLevel(num, h++, 1);
+    sim.setCellLevel(num, h++, 1);
   }
 
   @override
