@@ -9,8 +9,8 @@ class Simulator extends ChangeNotifier {
     this.tickDuration = const Duration(milliseconds: 50),
   })  : array = [],
         diffs = [] {
-    resetDiffs();
-    fillArrayWithCells(array, height, width);
+    _resetDiffs();
+    _fillArrayWithCells(array, height, width);
   }
 
   static const minLvl = 0.001;
@@ -34,7 +34,7 @@ class Simulator extends ChangeNotifier {
     if (isRunning) throw Exception("Can't change size while running");
     width = newWidth ?? width;
     height = newHeight ?? height;
-    fillArrayWithCells(array, height, width);
+    _fillArrayWithCells(array, height, width);
   }
 
   void start() {
@@ -50,7 +50,7 @@ class Simulator extends ChangeNotifier {
   void stop() {
     iteration = 0;
     isRunning = false;
-    fillArrayWithCells(array, height, width);
+    _fillArrayWithCells(array, height, width);
     notifyListeners();
   }
 
@@ -59,34 +59,34 @@ class Simulator extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// a single tick
-  ///
-  /// ### Cell rules:
-  /// | The cell | Symbol |
-  /// | :- | :-: |
-  /// | The current cell | c |
-  /// | The cell to the left | l |
-  /// | The cell to the right | r |
-  /// | The cell to the bottom | b |
-  ///
-  /// 1. b < 1
-  ///     * if (c > 1 - b)
-  ///       * c -= 1 - b
-  ///       * b = 1
-  ///     * else
-  ///       * c = 0
-  ///       * b += c
-  ///
-  /// 2. if l and r < c
-  ///     * all three cells will have the value: `(c+l+r)/3`
-  ///
-  /// 3. if a side is >= c
-  ///     * ignore that side
-  ///
-  /// 4. if only one side cell (o) < c
-  ///     * λo = (c - o) / 2
+  // ### Cell rules:
+  // | The cell | Symbol |
+  // | :- | :-: |
+  // | The current cell | c |
+  // | The cell to the left | l |
+  // | The cell to the right | r |
+  // | The cell to the bottom | b |
+  //
+  // 1. b < 1
+  //     * if (c > 1 - b)
+  //       * c -= 1 - b
+  //       * b = 1
+  //     * else
+  //       * c = 0
+  //       * b += c
+  //
+  // 2. if l and r < c
+  //     * all three cells will have the value: `(c+l+r)/3`
+  //
+  // 3. if a side is >= c
+  //     * ignore that side
+  //
+  // 4. if only one side cell (o) < c
+  //     * λo = (c - o) / 2
+
+  /// a single tick (iteration)
   Future<void> tick() async {
-    resetDiffs();
+    _resetDiffs();
     ++iteration;
 
     for (var y = 0; y < height; y++) {
@@ -214,7 +214,7 @@ class Simulator extends ChangeNotifier {
   }
 
   /// Modifies [array] to be a [height]x[width] 2D list filled with `Cell(x,y)`
-  static void fillArrayWithCells(final List<List<Cell>> array, int height, int width) {
+  static void _fillArrayWithCells(final List<List<Cell>> array, int height, int width) {
     // Clear te array.
     // This make the array = []
     array.removeRange(0, array.length);
@@ -231,7 +231,7 @@ class Simulator extends ChangeNotifier {
     }
   }
 
-  void resetDiffs() {
+  void _resetDiffs() {
     // Clear te array.
     // This will make diffs = []
     diffs.removeRange(0, diffs.length);
