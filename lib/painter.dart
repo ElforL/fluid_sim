@@ -27,7 +27,6 @@ class MyPainter extends CustomPainter {
   final double tileHeight;
 
   bool showGrid;
-  // TODO implement
   bool showLevels;
 
   @override
