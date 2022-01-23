@@ -50,3 +50,18 @@ enum CellType {
   /// The cell can not contain liquid and it blocks liquid from flowing.
   solid,
 }
+
+/// Adds `toShortString()` method to [CellType].
+extension EnumToShortString on CellType {
+  /// Returns the string of the **value**.
+  ///
+  /// For example,
+  /// ```dart
+  /// var enum1 = MyEnum.val1;
+  /// print(enum1.toString()); /// 'MyEnum.val1'
+  /// print(enum1.toShortString()); /// 'val1'
+  /// ```
+  String toShortString() {
+    return toString().split('.').last;
+  }
+}
