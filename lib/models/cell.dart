@@ -38,6 +38,11 @@ class Cell {
 
   /// The left neighbour cell.
   Cell get left => _array[y][x + 1];
+
+  @override
+  String toString() {
+    return '${type.toShortString()} cell ($x,$y) lvl=$level';
+  }
 }
 
 /// The type of the cell.
