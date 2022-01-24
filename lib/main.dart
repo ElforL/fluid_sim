@@ -1,9 +1,15 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html';
+
+import 'package:fluid_sim/models/cell.dart';
 import 'package:fluid_sim/painter.dart';
 import 'package:fluid_sim/simulator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
+  window.document.onContextMenu.listen((evt) => evt.preventDefault());
+
   runApp(const MyApp());
 }
 
@@ -45,10 +51,18 @@ class _MyHomePageState extends State<MyHomePage> {
   bool showGrid = false;
   bool showLevels = false;
 
+  final double canvasHeight = 700;
+  final double canvasWidth = 700;
+
+  late double tileWidth;
+  late double tileHeight;
+
   @override
   void initState() {
     sim = Simulator(20, 20);
-    populateSim();
+
+    tileWidth = canvasWidth / sim.width;
+    tileHeight = canvasHeight / sim.height;
 
     _widthController = TextEditingController(text: sim.width.toString());
     _heightController = TextEditingController(text: sim.height.toString());
@@ -68,24 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void populateSim() {
-    sim.setCellLevel(4, 0, 1);
-    int num = 5;
-    int h = 1;
-    sim.setCellLevel(num++, 0, 1);
-    sim.setCellLevel(num++, 0, 1);
-    sim.setCellLevel(num++, 0, 1);
-    sim.setCellLevel(num++, h, 1);
-    sim.setCellLevel(num++, h, 1);
-    sim.setCellLevel(num++, h++, 1);
-    sim.setCellLevel(num, h++, 1);
-    sim.setCellLevel(num, h++, 1);
-  }
-
   @override
   Widget build(BuildContext context) {
-    // _widthController.text = sim.width.toString();
-    // _heightController.text = sim.height.toString();
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -112,16 +110,20 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: FittedBox(
                           child: ClipRRect(
                             child: SizedBox(
-                              width: 700,
-                              height: 700,
-                              child: CustomPaint(
-                                painter: MyPainter(
-                                  sim: sim,
-                                  tileWidth: 700 / sim.width,
-                                  tileHeight: 700 / sim.height,
-                                  showGrid: showGrid,
-                                  showLevels: showLevels,
-                                  fillColor: Colors.blueAccent.shade100,
+                              width: canvasWidth,
+                              height: canvasHeight,
+                              child: Listener(
+                                onPointerDown: onPointerDown,
+                                onPointerMove: onPointerMove,
+                                child: CustomPaint(
+                                  painter: MyPainter(
+                                    sim: sim,
+                                    tileWidth: tileWidth,
+                                    tileHeight: tileHeight,
+                                    showGrid: showGrid,
+                                    showLevels: showLevels,
+                                    fillColor: Colors.blueAccent.shade100,
+                                  ),
                                 ),
                               ),
                             ),
@@ -152,6 +154,64 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  /// This variable is used to determine wheter the touch input should remove or build solid bolcks
+  ///
+  /// if it's `true` the entire user swipe will remove any solid blocks it comes across.
+  /// if it's `false` it'll set every cell it comes across to solid.
+  ///
+  /// The variable is set every time the user starts a swipe (in `onPointerDown()`).
+  bool _isRemoveMode = true;
+
+  void onPointerDown(PointerDownEvent details) {
+    final coords = getCellCoords(details.localPosition);
+    if (coords == null) return;
+
+    // Set touch mode
+    _isRemoveMode = sim.array[coords[1]][coords[0]].type == CellType.solid;
+
+    if (details.buttons == 1) {
+      // Set cell
+      setCellType(coords);
+    } else if (details.buttons == 2) {
+      // Add 1.0 to cell lvl
+      sim.setCellLevel(coords[0], coords[1], 1);
+    }
+  }
+
+  void onPointerMove(PointerMoveEvent details) {
+    final coords = getCellCoords(details.localPosition);
+    if (coords == null) return;
+
+    if (details.buttons == 1) {
+      // Set cell
+      setCellType(coords);
+    } else if (details.buttons == 2) {
+      // Add 1.0 to cell lvl
+      sim.setCellLevel(coords[0], coords[1], 1);
+    }
+  }
+
+  void setCellType(List<int> coords) {
+    sim.setCellType(coords[0], coords[1], _isRemoveMode ? CellType.nonSolid : CellType.solid);
+  }
+
+  /// Returns the cell coordinates (as `[x, y]`) that [position] is in.
+  ///
+  /// __[posision] must be the local position in the canvas and not the global position.__
+  ///
+  /// Returns null if [posistion] is outside the canvas.
+  List<int>? getCellCoords(Offset position) {
+    // if the [position] is outside the canvas return null
+    if (position.dx < 0 || position.dx > canvasWidth || position.dy < 0 || position.dy > canvasHeight) {
+      return null;
+    }
+
+    int x = position.dx ~/ tileWidth;
+    int y = position.dy ~/ tileHeight;
+
+    return [x, y];
+  }
+
   Widget _buildFABsControls() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -162,7 +222,6 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               sim.stop();
             });
-            populateSim();
           },
           tooltip: 'Replay',
           child: const Icon(Icons.replay_rounded),
@@ -251,7 +310,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 newHeight: inputHeight,
               );
               setState(() {});
-              populateSim();
             },
           ),
         ),
