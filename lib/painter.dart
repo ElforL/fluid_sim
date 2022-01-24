@@ -47,24 +47,30 @@ class MyPainter extends CustomPainter {
     for (var y = 0; y < array.length; y++) {
       for (var x = 0; x < array[y].length; x++) {
         var cell = array[y][x];
-        final double percent = cell.level;
 
         // Define Rect
         final offset = Offset(x * tileWidth, y * tileHeight);
         final Rect cellRect = offset & Size(tileWidth, tileHeight);
 
-        // The gradiant shows the level amount by having both colors' stops at [percent].
-        final gradient = LinearGradient(
-          tileMode: TileMode.decal,
-          transform: const GradientRotation(-math.pi / 2),
-          stops: [percent, percent],
-          colors: [fillColor, emptyColor],
-        );
-
         Paint fillPaint;
+
         if (cell.type == CellType.nonSolid) {
-          // apply the gradient
-          fillPaint = Paint()..shader = gradient.createShader(cellRect);
+          // The gradiant shows the level amount by having both colors' stops at [cell.level].
+          final gradient = LinearGradient(
+            tileMode: TileMode.decal,
+            transform: const GradientRotation(-math.pi / 2),
+            stops: [cell.level, cell.level],
+            colors: [fillColor, emptyColor],
+          );
+
+          final topCell = sim.cellAbove(x, y);
+          if (cell.level >= Simulator.minLvl && topCell != null && topCell.level >= Simulator.minLvl) {
+            // If the top cell contains liquid then fill this cell (visually).
+            fillPaint = Paint()..color = fillColor;
+          } else {
+            // apply the gradient
+            fillPaint = Paint()..shader = gradient.createShader(cellRect);
+          }
         } else {
           fillPaint = Paint()..color = solidColor;
         }
@@ -75,7 +81,7 @@ class MyPainter extends CustomPainter {
         // Draw level
         if (showLevels) {
           final span = TextSpan(
-            text: percent.toStringAsFixed(2),
+            text: cell.level.toStringAsFixed(2),
             style: const TextStyle(color: Colors.white54),
           );
           final painter = TextPainter(text: span, textDirection: TextDirection.ltr);

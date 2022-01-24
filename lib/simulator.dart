@@ -204,6 +204,15 @@ class Simulator extends ChangeNotifier {
     _diffs[y][x] += diff;
   }
 
+  /// returns the cell above the cell at x,y
+  ///
+  /// returns `null` if it doesn't exist
+  Cell? cellAbove(int x, int y) {
+    _inBoundCheck(x, y);
+    if (y <= 0) return null;
+    return array[y - 1][x];
+  }
+
   /// returns the cell below the cell at x,y
   ///
   /// returns `null` if it doesn't exist
