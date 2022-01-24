@@ -168,8 +168,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         FloatingActionButton(
           mini: true,
-          onPressed: () {
-            sim.tick();
+          onPressed: () async {
+            await sim.tick();
           },
           tooltip: 'Skip',
           child: const Icon(Icons.skip_next_rounded),
