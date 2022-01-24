@@ -10,7 +10,6 @@ class MyPainter extends CustomPainter {
     required this.sim,
     this.solidColor = Colors.black,
     this.fillColor = Colors.white60,
-    this.emptyColor = Colors.white12,
     required this.tileWidth,
     required this.tileHeight,
     this.showGrid = false,
@@ -25,7 +24,6 @@ class MyPainter extends CustomPainter {
 
   final Color solidColor;
   final Color fillColor;
-  final Color emptyColor;
 
   final double tileWidth;
   final double tileHeight;
@@ -46,37 +44,38 @@ class MyPainter extends CustomPainter {
 
     for (var y = 0; y < array.length; y++) {
       for (var x = 0; x < array[y].length; x++) {
-        var cell = array[y][x];
+        final cell = array[y][x];
+        final liquidPercent = cell.level / Simulator.maxLvl;
+
+        /// The height of the rect
+        /// This is adjusted based on the liquid amount.
+        ///
+        /// The `math.min()` to prevent the rect being higher than [tileHeight] if the cell is compressed
+        double rectHeight;
+
+        final topCell = sim.cellAbove(x, y);
+        if ((topCell != null && topCell.level >= Simulator.minLvl) || cell.type == CellType.solid) {
+          // If the top cell contains liquid then fill the whole cell (visually).
+          rectHeight = tileHeight;
+        } else {
+          rectHeight = math.min(tileHeight, tileHeight * liquidPercent);
+        }
 
         // Define Rect
-        final offset = Offset(x * tileWidth, y * tileHeight);
-        final Rect cellRect = offset & Size(tileWidth, tileHeight);
+        final topLeftOffset = Offset(x * tileWidth, y * tileHeight);
+        final offset = Offset(x * tileWidth, y * tileHeight + tileHeight - rectHeight);
+        final Rect cellRect = offset & Size(tileWidth, rectHeight);
 
-        Paint fillPaint;
+        Paint? fillPaint;
 
-        if (cell.type == CellType.nonSolid) {
-          // The gradiant shows the level amount by having both colors' stops at [cell.level].
-          final gradient = LinearGradient(
-            tileMode: TileMode.decal,
-            transform: const GradientRotation(-math.pi / 2),
-            stops: [cell.level, cell.level],
-            colors: [fillColor, emptyColor],
-          );
-
-          final topCell = sim.cellAbove(x, y);
-          if (cell.level >= Simulator.minLvl && topCell != null && topCell.level >= Simulator.minLvl) {
-            // If the top cell contains liquid then fill this cell (visually).
-            fillPaint = Paint()..color = fillColor;
-          } else {
-            // apply the gradient
-            fillPaint = Paint()..shader = gradient.createShader(cellRect);
-          }
-        } else {
+        if (cell.type == CellType.solid) {
           fillPaint = Paint()..color = solidColor;
+        } else if (liquidPercent >= Simulator.minLvl) {
+          fillPaint = Paint()..color = fillColor;
         }
 
         // Draw cell
-        canvas.drawRect(cellRect, fillPaint);
+        if (fillPaint != null) canvas.drawRect(cellRect, fillPaint);
 
         // Draw level
         if (showLevels) {
@@ -86,15 +85,17 @@ class MyPainter extends CustomPainter {
           );
           final painter = TextPainter(text: span, textDirection: TextDirection.ltr);
           painter.layout();
-          painter.paint(canvas, offset);
+          painter.paint(canvas, topLeftOffset);
         }
 
         // Draw grid
         if (showGrid) {
+          final gridRect = topLeftOffset & Size(tileWidth, tileHeight);
           final gridPaint = Paint()
             ..color = Colors.white30
             ..style = PaintingStyle.stroke;
-          canvas.drawRect(cellRect, gridPaint);
+
+          canvas.drawRect(gridRect, gridPaint);
         }
       }
     }
