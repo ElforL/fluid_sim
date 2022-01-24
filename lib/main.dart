@@ -84,6 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    tileWidth = canvasWidth / sim.width;
+    tileHeight = canvasHeight / sim.height;
+
     return Scaffold(
       body: SafeArea(
         child: Center(
