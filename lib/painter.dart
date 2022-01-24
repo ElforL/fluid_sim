@@ -44,7 +44,8 @@ class MyPainter extends CustomPainter {
 
     for (var y = 0; y < array.length; y++) {
       for (var x = 0; x < array[y].length; x++) {
-        final double percent = array[y][x].level;
+        var cell = array[y][x];
+        final double percent = cell.level;
 
         // Define Rect
         final offset = Offset(x * tileWidth, y * tileHeight);
@@ -58,8 +59,14 @@ class MyPainter extends CustomPainter {
           colors: [fillColor, emptyColor],
         );
 
-        // apply the gradient
-        var fillPaint = Paint()..shader = gradient.createShader(cellRect);
+        Paint fillPaint;
+        if (cell.type == CellType.nonSolid) {
+          // apply the gradient
+          fillPaint = Paint()..shader = gradient.createShader(cellRect);
+        } else {
+          // TODO add color as paramater
+          fillPaint = Paint()..color = Colors.black;
+        }
 
         // Draw cell
         canvas.drawRect(cellRect, fillPaint);
