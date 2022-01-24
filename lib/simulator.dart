@@ -118,10 +118,10 @@ class Simulator extends ChangeNotifier {
           continue;
         }
 
-        // 1
-        Cell? below = _cellBelow(x, y);
+        // Bottom
 
-        if (below != null && below.type != CellType.solid && below.level < 1) {
+        Cell? below = _cellBelow(x, y);
+        if (below != null && below.type == CellType.nonSolid && below.level < 1) {
           if (cell.level > 1 - below.level) {
             final diff = 1 - below.level;
             _addDiff(x, y, -diff); // c -= (1 - b)
@@ -133,9 +133,11 @@ class Simulator extends ChangeNotifier {
           continue;
         }
 
+        // Left and right
+
         Cell? left = _cellLeft(x, y);
         Cell? right = _cellRight(x, y);
-        if (left != null && right != null) {
+        if (left != null && left.type == CellType.nonSolid && right != null && right.type == CellType.nonSolid) {
           // C is not on the border
           if (left.level < cell.level && right.level < cell.level) {
             final nextVal = (cell.level + left.level + right.level) / 3;
@@ -146,9 +148,9 @@ class Simulator extends ChangeNotifier {
           }
         }
 
-        if (left == null || left.level >= cell.level) {
+        if (left == null || left.type == CellType.solid || left.level >= cell.level) {
           // ignore left
-          if (right != null && right.level < cell.level) {
+          if (right != null && right.type == CellType.nonSolid && right.level < cell.level) {
             /// diff = (c - r) / 2.
             /// this is the amount that will go from c to r
             final diff = (cell.level - right.level) / 2;
@@ -157,9 +159,9 @@ class Simulator extends ChangeNotifier {
             continue;
           }
         }
-        if (right == null || right.level >= cell.level) {
+        if (right == null || right.type == CellType.solid || right.level >= cell.level) {
           // ignore right
-          if (left != null && left.level < cell.level) {
+          if (left != null && left.type == CellType.nonSolid && left.level < cell.level) {
             /// diff = (c - l) / 2.
             /// this is the amount that will go from c to l
             final diff = (cell.level - left.level) / 2;
