@@ -59,10 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    sim = Simulator(20, 20);
-
-    tileWidth = canvasWidth / sim.width;
-    tileHeight = canvasHeight / sim.height;
+    sim = Simulator(
+      20,
+      20,
+      tickDuration: const Duration(milliseconds: 20),
+    );
 
     _widthController = TextEditingController(text: sim.width.toString());
     _heightController = TextEditingController(text: sim.height.toString());
