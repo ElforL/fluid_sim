@@ -70,7 +70,14 @@ class Simulator extends ChangeNotifier {
 
   /// Set the level of the cell at [x],[y]
   void setCellLevel(int x, int y, double lvl) {
+    if (array[y][x].type == CellType.solid) return;
     array[y][x].level = lvl;
+    notifyListeners();
+  }
+
+  /// Set the level of the cell at [x],[y]
+  void setCellType(int x, int y, CellType type) {
+    array[y][x].type = type;
     notifyListeners();
   }
 
