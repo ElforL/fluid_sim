@@ -121,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   tileHeight: 700 / sim.height,
                                   showGrid: showGrid,
                                   showLevels: showLevels,
+                                  fillColor: Colors.blueAccent.shade100,
                                 ),
                               ),
                             ),
