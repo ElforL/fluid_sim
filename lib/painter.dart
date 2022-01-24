@@ -8,6 +8,7 @@ import 'models/cell.dart';
 class MyPainter extends CustomPainter {
   MyPainter({
     required this.sim,
+    this.solidColor = Colors.black,
     this.fillColor = Colors.white60,
     this.emptyColor = Colors.white12,
     required this.tileWidth,
@@ -22,6 +23,7 @@ class MyPainter extends CustomPainter {
 
   final Color? backgroundColor;
 
+  final Color solidColor;
   final Color fillColor;
   final Color emptyColor;
 
@@ -64,8 +66,7 @@ class MyPainter extends CustomPainter {
           // apply the gradient
           fillPaint = Paint()..shader = gradient.createShader(cellRect);
         } else {
-          // TODO add color as paramater
-          fillPaint = Paint()..color = Colors.black;
+          fillPaint = Paint()..color = solidColor;
         }
 
         // Draw cell
