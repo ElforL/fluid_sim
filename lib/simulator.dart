@@ -107,6 +107,7 @@ class Simulator extends ChangeNotifier {
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         final cell = array[y][x];
+
         if (cell.level < 0) {
           throw Exception('Negative value cell. cell $x,$y had the value $cell in iteration $iteration');
         }
@@ -120,7 +121,7 @@ class Simulator extends ChangeNotifier {
         // 1
         Cell? below = _cellBelow(x, y);
 
-        if (below != null && below.level < 1) {
+        if (below != null && below.type != CellType.solid && below.level < 1) {
           if (cell.level > 1 - below.level) {
             final diff = 1 - below.level;
             _addDiff(x, y, -diff); // c -= (1 - b)
