@@ -44,23 +44,27 @@ class MyPainter extends CustomPainter {
 
     for (var y = 0; y < array.length; y++) {
       for (var x = 0; x < array[y].length; x++) {
-        var offset = Offset(x * tileWidth, y * tileHeight);
-        final Rect r1 = offset & Size(tileWidth, tileHeight);
-
-        // the gradient shows the filled amount by having both stops at the [percent]
         final double percent = array[y][x].level;
+
+        // Define Rect
+        final offset = Offset(x * tileWidth, y * tileHeight);
+        final Rect cellRect = offset & Size(tileWidth, tileHeight);
+
+        // The gradiant shows the level amount by having both colors' stops at [percent].
         final gradient = LinearGradient(
           tileMode: TileMode.decal,
           transform: const GradientRotation(-math.pi / 2),
           stops: [percent, percent],
           colors: [fillColor, emptyColor],
         );
-        // apply shader
-        var paint2 = Paint()..shader = gradient.createShader(r1);
-        var paint3 = Paint()
-          ..color = Colors.white30
-          ..style = PaintingStyle.stroke;
 
+        // apply the gradient
+        var fillPaint = Paint()..shader = gradient.createShader(cellRect);
+
+        // Draw cell
+        canvas.drawRect(cellRect, fillPaint);
+
+        // Draw level
         if (showLevels) {
           final span = TextSpan(
             text: percent.toStringAsFixed(2),
@@ -71,9 +75,13 @@ class MyPainter extends CustomPainter {
           painter.paint(canvas, offset);
         }
 
-        // paint
-        canvas.drawRect(r1, paint2);
-        if (showGrid) canvas.drawRect(r1, paint3);
+        // Draw grid
+        if (showGrid) {
+          final gridPaint = Paint()
+            ..color = Colors.white30
+            ..style = PaintingStyle.stroke;
+          canvas.drawRect(cellRect, gridPaint);
+        }
       }
     }
   }
