@@ -1,4 +1,4 @@
-import 'package:fluid_sim/models/flow_direction.dart';
+import 'package:liquid_simulator/models/flow_direction.dart';
 
 class Cell {
   /// The amount of liquid in the cell.

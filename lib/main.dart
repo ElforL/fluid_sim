@@ -1,9 +1,9 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
-import 'package:fluid_sim/models/cell.dart';
-import 'package:fluid_sim/painter.dart';
-import 'package:fluid_sim/simulator.dart';
+import 'package:liquid_simulator/models/cell.dart';
+import 'package:liquid_simulator/painter.dart';
+import 'package:liquid_simulator/simulator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

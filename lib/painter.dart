@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:fluid_sim/simulator.dart';
+import 'package:liquid_simulator/simulator.dart';
 import 'package:flutter/material.dart';
 
 import 'models/cell.dart';

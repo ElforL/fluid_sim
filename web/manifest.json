@@ -1,6 +1,6 @@
 {
-    "name": "fluid_sim",
-    "short_name": "fluid_sim",
+    "name": "liquid_simulator",
+    "short_name": "liquid_simulator",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

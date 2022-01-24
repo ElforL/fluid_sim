@@ -1,4 +1,4 @@
-# fluid_sim
+# liquid_simulator
 
 A new Flutter project.
 
