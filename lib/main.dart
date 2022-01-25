@@ -103,8 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    final moveSizeControls = size.width < 1150;
-    final allVertical = size.width < 950;
+    final allVertical = size.width < 1150;
 
     tileWidth = canvasWidth / sim.width;
     tileHeight = canvasHeight / sim.height;
@@ -164,10 +163,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             Expanded(child: _buildDebugControls()),
                             painter,
-                            if (!moveSizeControls)
-                              Flexible(
-                                child: _buildSizeControls(),
-                              ),
+                            Flexible(
+                              child: _buildSizeControls(),
+                            ),
                           ],
                         ),
                       ),
@@ -184,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   const Divider(),
                   _buildDebugControls(),
                 ],
-                if (moveSizeControls || allVertical) ...[
+                if (allVertical) ...[
                   const Divider(),
                   _buildSizeControls(),
                 ],
