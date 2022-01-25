@@ -149,6 +149,7 @@ class Simulator extends ChangeNotifier {
           cell.level = 0;
           continue;
         }
+        remainingLiquid = double.parse(remainingLiquid.toStringAsFixed(2));
 
         // Left and right
 
@@ -201,6 +202,7 @@ class Simulator extends ChangeNotifier {
           cell.level = 0;
           continue;
         }
+        remainingLiquid = double.parse(remainingLiquid.toStringAsFixed(2));
 
         final top = cellAbove(x, y);
         if (top != null && top.type == CellType.nonSolid && remainingLiquid > Simulator.maxLvl) {
