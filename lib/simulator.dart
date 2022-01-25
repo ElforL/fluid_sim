@@ -114,13 +114,14 @@ class Simulator extends ChangeNotifier {
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         final cell = array[y][x];
+        var remainingLiquid = cell.level;
 
         if (cell.level < 0) {
           throw Exception('Negative value cell. cell $x,$y had the value $cell in iteration $iteration');
         }
 
         // skip the cell if it's solid or its level is less than the minimum level.
-        if (cell.type == CellType.solid || cell.level <= minLvl) {
+        if (cell.type == CellType.solid || remainingLiquid <= minLvl) {
           cell.level = 0;
           continue;
         }
@@ -129,14 +130,22 @@ class Simulator extends ChangeNotifier {
 
         Cell? below = _cellBelow(x, y);
         if (below != null && below.type == CellType.nonSolid && below.level < 1) {
-          if (cell.level > 1 - below.level) {
+          if (remainingLiquid > 1 - below.level) {
             final diff = 1 - below.level;
+
+            remainingLiquid -= diff;
             _addDiff(x, y, -diff); // c -= (1 - b)
             _addDiff(x, y + 1, diff); // b = 1
           } else {
+            remainingLiquid = 0;
             _addDiff(x, y, -cell.level); // c = 0
             _addDiff(x, y + 1, cell.level); // b += c
+            continue;
           }
+        }
+
+        if (remainingLiquid <= minLvl) {
+          cell.level = 0;
           continue;
         }
 
@@ -144,38 +153,57 @@ class Simulator extends ChangeNotifier {
 
         Cell? left = _cellLeft(x, y);
         Cell? right = _cellRight(x, y);
-        if (left != null && left.type == CellType.nonSolid && right != null && right.type == CellType.nonSolid) {
+
+        /// has non solid cells on left and right?
+        final hasSideCells =
+            left != null && left.type == CellType.nonSolid && right != null && right.type == CellType.nonSolid;
+
+        if (hasSideCells && left.level < remainingLiquid && right.level < remainingLiquid) {
           // C is not on the border
-          if (left.level < cell.level && right.level < cell.level) {
-            final nextVal = (cell.level + left.level + right.level) / 3;
-            _addDiff(x, y, nextVal - cell.level); // set c
-            _addDiff(x - 1, y, nextVal - left.level); // set l
-            _addDiff(x + 1, y, nextVal - right.level); // set r
-            continue;
+          final nextVal = (remainingLiquid + left.level + right.level) / 3;
+
+          _addDiff(x, y, nextVal - remainingLiquid); // set c
+          remainingLiquid += nextVal - remainingLiquid;
+          _addDiff(x - 1, y, nextVal - left.level); // set l
+          _addDiff(x + 1, y, nextVal - right.level); // set r
+        } else {
+          if (left == null || left.type == CellType.solid || left.level >= remainingLiquid) {
+            // ignore left
+            if (right != null && right.type == CellType.nonSolid && right.level < remainingLiquid) {
+              /// diff = (c - r) / 2.
+              /// this is the amount that will go from c to r
+              final diff = (remainingLiquid - right.level) / 2;
+
+              remainingLiquid -= diff;
+              _addDiff(x, y, -diff);
+              _addDiff(x + 1, y, diff);
+            }
+          } else if (right == null || right.type == CellType.solid || right.level >= remainingLiquid) {
+            // ignore right
+            if (left.type == CellType.nonSolid && left.level < remainingLiquid) {
+              /// diff = (c - l) / 2.
+              /// this is the amount that will go from c to l
+              final diff = (remainingLiquid - left.level) / 2;
+
+              remainingLiquid -= diff;
+              _addDiff(x, y, -diff);
+              _addDiff(x - 1, y, diff);
+            }
           }
         }
 
-        if (left == null || left.type == CellType.solid || left.level >= cell.level) {
-          // ignore left
-          if (right != null && right.type == CellType.nonSolid && right.level < cell.level) {
-            /// diff = (c - r) / 2.
-            /// this is the amount that will go from c to r
-            final diff = (cell.level - right.level) / 2;
-            _addDiff(x, y, -diff);
-            _addDiff(x + 1, y, diff);
-            continue;
-          }
+        if (remainingLiquid <= minLvl) {
+          cell.level = 0;
+          continue;
         }
-        if (right == null || right.type == CellType.solid || right.level >= cell.level) {
-          // ignore right
-          if (left != null && left.type == CellType.nonSolid && left.level < cell.level) {
-            /// diff = (c - l) / 2.
-            /// this is the amount that will go from c to l
-            final diff = (cell.level - left.level) / 2;
-            _addDiff(x, y, -diff);
-            _addDiff(x - 1, y, diff);
-            continue;
-          }
+
+        final top = cellAbove(x, y);
+        if (top != null && top.type == CellType.nonSolid && remainingLiquid > Simulator.maxLvl) {
+          final diff = remainingLiquid - Simulator.maxLvl;
+
+          remainingLiquid -= diff;
+          _addDiff(x, y, -diff);
+          _addDiff(x, y - 1, diff);
         }
       } // end of cell
     } // end of all cells
