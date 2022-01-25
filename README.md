@@ -4,6 +4,8 @@ A 2D liquid simulator using cellular automata.
 
 Inspired by [jongallant/LiquidSimulator](https://github.com/jongallant/LiquidSimulator) but using different rules.
 
+![CD badge](https://github.com/ElforL/liquid_simulator/actions/workflows/cd.yaml/badge.svg) ![gh-pages badge](https://github.com/ElforL/liquid_simulator/actions/workflows/pages/pages-build-deployment/badge.svg)
+
 ## Demo Link
 https://elforl.github.io/liquid_simulator/
 
