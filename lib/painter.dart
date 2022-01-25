@@ -84,7 +84,7 @@ class MyPainter extends CustomPainter {
     if (backgroundColor != null) {
       final paint = Paint()..color = backgroundColor!;
       canvas.drawRect(
-        Rect.largest,
+        const Offset(0, 0) & size,
         paint,
       );
     }
