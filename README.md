@@ -1,16 +1,12 @@
-# liquid_simulator
+# Liquid Simulator
 
-A new Flutter project.
+A 2D liquid simulator using cellular automata.
 
-## Getting Started
+Inspired by [jongallant/LiquidSimulator](https://github.com/jongallant/LiquidSimulator) but using different rules.
 
-This project is a starting point for a Flutter application.
+## Demo Link
+https://elforl.github.io/liquid_simulator/
 
-A few resources to get you started if this is your first Flutter project:
+## GIF
+![2022-01-25-14-27-43](https://user-images.githubusercontent.com/57017872/150970249-573329fa-427c-439e-ad81-0c4f18874ca1.gif)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
