@@ -111,24 +111,27 @@ class _MyHomePageState extends State<MyHomePage> {
     _tickMsController.text = sim.tickDuration.inMilliseconds.toString();
 
     var painter = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: FittedBox(
         child: ClipRRect(
           child: SizedBox(
             width: canvasWidth,
             height: canvasHeight,
-            child: Listener(
-              onPointerDown: onPointerDown,
-              onPointerMove: onPointerMove,
-              child: CustomPaint(
-                painter: MyPainter(
-                  sim: sim,
-                  tileWidth: tileWidth,
-                  tileHeight: tileHeight,
-                  showGrid: showGrid,
-                  showLevels: showLevels,
-                  drawDirections: drawDirections,
-                  fillColor: Colors.blueAccent.shade100,
+            child: GestureDetector(
+              onVerticalDragUpdate: (_) {},
+              child: Listener(
+                onPointerDown: onPointerDown,
+                onPointerMove: onPointerMove,
+                child: CustomPaint(
+                  painter: MyPainter(
+                    sim: sim,
+                    tileWidth: tileWidth,
+                    tileHeight: tileHeight,
+                    showGrid: showGrid,
+                    showLevels: showLevels,
+                    drawDirections: drawDirections,
+                    fillColor: Colors.blueAccent.shade100,
+                  ),
                 ),
               ),
             ),
