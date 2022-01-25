@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool showGrid = false;
   bool showLevels = false;
+  bool drawDirections = false;
 
   final double canvasHeight = 700;
   final double canvasWidth = 700;
@@ -137,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     tileHeight: tileHeight,
                                     showGrid: showGrid,
                                     showLevels: showLevels,
+                                    drawDirections: drawDirections,
                                     fillColor: Colors.blueAccent.shade100,
                                   ),
                                 ),
@@ -292,8 +294,19 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ),
+        ListTile(
+          title: const Text('Show Flow Directions'),
+          trailing: Switch(
+            value: drawDirections,
+            onChanged: (val) {
+              setState(() {
+                drawDirections = val;
+              });
+            },
+          ),
+        ),
         OptionTile(
-          title: Text('Tick duration ${sim.isRunning ? '🔒' : ''}'),
+          title: const Text('Tick duration'),
           enabled: !sim.isRunning,
           controller: _tickMsController,
         ),

@@ -14,6 +14,7 @@ class MyPainter extends CustomPainter {
     required this.tileHeight,
     this.showGrid = false,
     this.showLevels = false,
+    this.drawDirections = false,
     this.backgroundColor = Colors.black38,
   }) : super(repaint: sim);
 
@@ -30,6 +31,50 @@ class MyPainter extends CustomPainter {
 
   bool showGrid;
   bool showLevels;
+  bool drawDirections;
+
+  /// [rotationMultiplier] is how many times the tip of the arrow is rotated by 90°
+  void drawArrow(Offset p1, Offset p2, Paint paint, Canvas canvas) {
+    canvas.drawLine(p1, p2, paint);
+
+    int rotationMultiplier;
+
+    if (p1.dy == p2.dy) {
+      // arrow going up or down
+      rotationMultiplier = p1.dx < p2.dx ? 1 : 3;
+    } else {
+      // arrow going left or right
+      rotationMultiplier = p1.dy < p2.dy ? 2 : 0;
+    }
+
+    drawTriangle(p2, Size(tileWidth / 4, tileHeight / 4), paint, rotationMultiplier, canvas);
+  }
+
+  /// [rotationMultiplier] is how many times the tip of the arrow is rotated by 90°
+  void drawTriangle(Offset offset, Size size, Paint paint, int rotationMultiplier, Canvas canvas) {
+    // // Up
+    final rotation = rotationMultiplier % 4;
+
+    Path? path;
+    if (rotation == 0 || rotation == 2) {
+      final yOff = rotation == 0 ? -size.height : size.height;
+      path = Path();
+      path.moveTo(offset.dx, offset.dy + yOff);
+      path.lineTo(offset.dx + size.width / 2, offset.dy);
+      path.lineTo(offset.dx - size.width / 2, offset.dy);
+      path.close();
+    } else {
+      final xOff = rotation == 3 ? -size.width : size.width;
+
+      path = Path();
+      path.moveTo(offset.dx + xOff, offset.dy);
+      path.lineTo(offset.dx, offset.dy - size.height / 2);
+      path.lineTo(offset.dx, offset.dy + size.height / 2);
+      path.close();
+    }
+
+    canvas.drawPath(path, paint);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -76,6 +121,46 @@ class MyPainter extends CustomPainter {
 
         // Draw cell
         if (fillPaint != null) canvas.drawRect(cellRect, fillPaint);
+
+        // Draw flow directions
+        if (drawDirections) {
+          /// The center of the cell
+          final center = Offset(topLeftOffset.dx + tileWidth / 2, topLeftOffset.dy + tileHeight / 2);
+
+          final arrowPaint = Paint();
+          if (cell.flowDirections.down) {
+            drawArrow(
+              center,
+              Offset(center.dx, center.dy + tileHeight / 4),
+              arrowPaint,
+              canvas,
+            );
+          }
+          if (cell.flowDirections.up) {
+            drawArrow(
+              center,
+              Offset(center.dx, center.dy - tileHeight / 4),
+              arrowPaint,
+              canvas,
+            );
+          }
+          if (cell.flowDirections.right) {
+            drawArrow(
+              center,
+              Offset(center.dx + tileWidth / 4, center.dy),
+              arrowPaint,
+              canvas,
+            );
+          }
+          if (cell.flowDirections.left) {
+            drawArrow(
+              center,
+              Offset(center.dx - tileWidth / 4, center.dy),
+              arrowPaint,
+              canvas,
+            );
+          }
+        }
 
         // Draw level
         if (showLevels) {
