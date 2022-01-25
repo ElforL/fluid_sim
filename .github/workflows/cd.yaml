@@ -24,7 +24,7 @@ jobs:
 
       # Github
       - name: Deploy to Github 🐱‍👤
-        uses: JamesIves/github-pages-deploy-action@4.2.2
+        uses: JamesIves/github-pages-deploy-action@v4.2.2
         with:
           branch: build # The branch the action should deploy to.
           folder: build/web # The folder the action should deploy.
