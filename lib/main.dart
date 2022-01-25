@@ -286,7 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
               sim.stop();
             });
           },
-          tooltip: 'Replay',
+          tooltip: 'Reset',
           child: const Icon(Icons.replay_rounded),
         ),
         const SizedBox(height: 10),
@@ -295,7 +295,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () async {
             await sim.tick();
           },
-          tooltip: 'Skip',
+          tooltip: 'Skip tick/iteration',
           child: const Icon(Icons.skip_next_rounded),
         ),
         const SizedBox(height: 10),
