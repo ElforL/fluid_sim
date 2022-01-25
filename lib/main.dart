@@ -52,6 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
   bool showLevels = false;
   bool drawDirections = false;
 
+  /// weather the user clicks add a liquid (when `true`) or solid (when `false`).
+  ///
+  /// used for touch devices.
+  bool panLiquidMode = false;
+
   final double canvasHeight = 700;
   final double canvasWidth = 700;
 
@@ -205,11 +210,21 @@ class _MyHomePageState extends State<MyHomePage> {
     _isRemoveMode = sim.array[coords[1]][coords[0]].type == CellType.solid;
 
     if (details.buttons == 1) {
-      // Set cell
-      setCellType(coords);
+      if (panLiquidMode) {
+        // Add 1.0 to cell lvl
+        sim.setCellLevel(coords[0], coords[1], 1);
+      } else {
+        // Set cell
+        setCellType(coords);
+      }
     } else if (details.buttons == 2) {
-      // Add 1.0 to cell lvl
-      sim.setCellLevel(coords[0], coords[1], 1);
+      if (panLiquidMode) {
+        // Set cell
+        setCellType(coords);
+      } else {
+        // Add 1.0 to cell lvl
+        sim.setCellLevel(coords[0], coords[1], 1);
+      }
     }
   }
 
@@ -218,11 +233,21 @@ class _MyHomePageState extends State<MyHomePage> {
     if (coords == null) return;
 
     if (details.buttons == 1) {
-      // Set cell
-      setCellType(coords);
+      if (panLiquidMode) {
+        // Add 1.0 to cell lvl
+        sim.setCellLevel(coords[0], coords[1], 1);
+      } else {
+        // Set cell
+        setCellType(coords);
+      }
     } else if (details.buttons == 2) {
-      // Add 1.0 to cell lvl
-      sim.setCellLevel(coords[0], coords[1], 1);
+      if (panLiquidMode) {
+        // Set cell
+        setCellType(coords);
+      } else {
+        // Add 1.0 to cell lvl
+        sim.setCellLevel(coords[0], coords[1], 1);
+      }
     }
   }
 
@@ -290,6 +315,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        ListTile(
+          title: const Text('Add Liquid'),
+          subtitle: Text('Touching will ${panLiquidMode ? 'add liquid' : 'place/remove blocks'}'),
+          trailing: Switch(
+            value: panLiquidMode,
+            onChanged: (val) {
+              setState(() {
+                panLiquidMode = val;
+              });
+            },
+          ),
+        ),
         ListTile(
           title: const Text('Show Grid'),
           trailing: Switch(
