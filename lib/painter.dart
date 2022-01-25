@@ -10,6 +10,7 @@ class MyPainter extends CustomPainter {
     required this.sim,
     this.solidColor = Colors.black,
     this.fillColor = Colors.white60,
+    this.arrowColors = Colors.redAccent,
     required this.tileWidth,
     required this.tileHeight,
     this.showGrid = false,
@@ -25,6 +26,7 @@ class MyPainter extends CustomPainter {
 
   final Color solidColor;
   final Color fillColor;
+  final Color arrowColors;
 
   final double tileWidth;
   final double tileHeight;
@@ -127,7 +129,7 @@ class MyPainter extends CustomPainter {
           /// The center of the cell
           final center = Offset(topLeftOffset.dx + tileWidth / 2, topLeftOffset.dy + tileHeight / 2);
 
-          final arrowPaint = Paint();
+          final arrowPaint = Paint()..color = arrowColors;
           if (cell.flowDirections.down) {
             drawArrow(
               center,
