@@ -60,8 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     sim = Simulator(
-      20,
-      20,
+      30, // initial width
+      30, // initial height
       tickDuration: const Duration(milliseconds: 20),
     );
 
@@ -69,7 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
     _heightController = TextEditingController(text: sim.height.toString());
     _tickMsController = TextEditingController(text: sim.tickDuration.inMilliseconds.toString())
       ..addListener(() {
-        if (!sim.isRunning) sim.tickDuration = Duration(milliseconds: inputTickMs);
+        if (!sim.isRunning) {
+          try {
+            sim.tickDuration = Duration(milliseconds: inputTickMs);
+          } on FormatException catch (_) {
+            // This happens when the user clears the textfield
+            // So `inputTickMs()` will parse an empty string which throws a [FormatException]
+            //
+            // if this happens set the tick duraton to 5 ms
+            sim.tickDuration = const Duration(milliseconds: 5);
+          }
+        }
       });
     super.initState();
   }
@@ -87,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     tileWidth = canvasWidth / sim.width;
     tileHeight = canvasHeight / sim.height;
+    _tickMsController.text = sim.tickDuration.inMilliseconds.toString();
 
     return Scaffold(
       body: SafeArea(
