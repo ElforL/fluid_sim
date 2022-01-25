@@ -317,91 +317,106 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildDebugControls() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListTile(
-          title: const Text('Add Liquid'),
-          subtitle: Text('Touching will ${panLiquidMode ? 'add liquid' : 'place/remove blocks'}'),
-          trailing: Switch(
-            value: panLiquidMode,
-            onChanged: (val) {
-              setState(() {
-                panLiquidMode = val;
-              });
-            },
-          ),
+    return Align(
+      alignment: AlignmentDirectional.topStart,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 450),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Add Liquid'),
+              subtitle: Text('Touching will ${panLiquidMode ? 'add liquid' : 'place/remove blocks'}'),
+              trailing: Switch(
+                value: panLiquidMode,
+                onChanged: (val) {
+                  setState(() {
+                    panLiquidMode = val;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Show Grid'),
+              trailing: Switch(
+                value: showGrid,
+                onChanged: (val) {
+                  setState(() {
+                    showGrid = val;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Show Levels'),
+              trailing: Switch(
+                value: showLevels,
+                onChanged: (val) {
+                  setState(() {
+                    showLevels = val;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Show Flow Directions'),
+              trailing: Switch(
+                value: drawDirections,
+                onChanged: (val) {
+                  setState(() {
+                    drawDirections = val;
+                  });
+                },
+              ),
+            ),
+            OptionTile(
+              title: const Text('Tick duration'),
+              subtitle: const FittedBox(
+                child: Text('The duration the simulator will wait before starting the next tick'),
+              ),
+              enabled: !sim.isRunning,
+              controller: _tickMsController,
+            ),
+          ],
         ),
-        ListTile(
-          title: const Text('Show Grid'),
-          trailing: Switch(
-            value: showGrid,
-            onChanged: (val) {
-              setState(() {
-                showGrid = val;
-              });
-            },
-          ),
-        ),
-        ListTile(
-          title: const Text('Show Levels'),
-          trailing: Switch(
-            value: showLevels,
-            onChanged: (val) {
-              setState(() {
-                showLevels = val;
-              });
-            },
-          ),
-        ),
-        ListTile(
-          title: const Text('Show Flow Directions'),
-          trailing: Switch(
-            value: drawDirections,
-            onChanged: (val) {
-              setState(() {
-                drawDirections = val;
-              });
-            },
-          ),
-        ),
-        OptionTile(
-          title: const Text('Tick duration'),
-          enabled: !sim.isRunning,
-          controller: _tickMsController,
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildSizeControls() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        OptionTile(
-          enabled: !sim.isRunning,
-          title: const Text('Width:'),
-          controller: _widthController,
+    return Align(
+      alignment: AlignmentDirectional.topStart,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 450),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OptionTile(
+              enabled: !sim.isRunning,
+              title: const Text('Width:'),
+              controller: _widthController,
+            ),
+            OptionTile(
+              enabled: !sim.isRunning,
+              title: const Text('Height:'),
+              controller: _heightController,
+            ),
+            Center(
+              child: OutlinedButton(
+                child: const Text('SET SIZE'),
+                onPressed: () {
+                  sim.stop();
+                  sim.changeWidthHeight(
+                    newWidth: inputWidth,
+                    newHeight: inputHeight,
+                  );
+                  setState(() {});
+                },
+              ),
+            ),
+          ],
         ),
-        OptionTile(
-          enabled: !sim.isRunning,
-          title: const Text('Height:'),
-          controller: _heightController,
-        ),
-        Center(
-          child: OutlinedButton(
-            child: const Text('SET'),
-            onPressed: () {
-              sim.stop();
-              sim.changeWidthHeight(
-                newWidth: inputWidth,
-                newHeight: inputHeight,
-              );
-              setState(() {});
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -412,10 +427,12 @@ class OptionTile extends StatelessWidget {
     this.enabled = true,
     required this.controller,
     required this.title,
+    this.subtitle,
   }) : super(key: key);
 
   final bool enabled;
   final Widget? title;
+  final Widget? subtitle;
   final TextEditingController controller;
 
   @override
@@ -423,6 +440,7 @@ class OptionTile extends StatelessWidget {
     return ListTile(
       enabled: enabled,
       title: title,
+      subtitle: subtitle,
       trailing: SizedBox(
         width: 40,
         child: TextField(
