@@ -114,6 +114,7 @@ class Simulator extends ChangeNotifier {
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         final cell = array[y][x];
+        cell.flowDirections.reset();
         var remainingLiquid = cell.level;
 
         if (cell.level < 0) {
