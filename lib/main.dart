@@ -289,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
           tooltip: 'Replay',
           child: const Icon(Icons.replay_rounded),
         ),
+        const SizedBox(height: 10),
         FloatingActionButton(
           mini: true,
           onPressed: () async {
@@ -297,6 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
           tooltip: 'Skip',
           child: const Icon(Icons.skip_next_rounded),
         ),
+        const SizedBox(height: 10),
         FloatingActionButton(
           mini: true,
           onPressed: () {
