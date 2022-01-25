@@ -96,74 +96,92 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    final moveSizeControls = size.width < 1150;
+    final allVertical = size.width < 950;
+
     tileWidth = canvasWidth / sim.width;
     tileHeight = canvasHeight / sim.height;
     _tickMsController.text = sim.tickDuration.inMilliseconds.toString();
 
+    var painter = Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: FittedBox(
+        child: ClipRRect(
+          child: SizedBox(
+            width: canvasWidth,
+            height: canvasHeight,
+            child: Listener(
+              onPointerDown: onPointerDown,
+              onPointerMove: onPointerMove,
+              child: CustomPaint(
+                painter: MyPainter(
+                  sim: sim,
+                  tileWidth: tileWidth,
+                  tileHeight: tileHeight,
+                  showGrid: showGrid,
+                  showLevels: showLevels,
+                  drawDirections: drawDirections,
+                  fillColor: Colors.blueAccent.shade100,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Liquid Simulation'.toUpperCase(),
-                style: Theme.of(context).textTheme.headline4?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-              ),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(child: _buildDebugControls()),
-                      Flexible(
-                        flex: 3,
-                        child: FittedBox(
-                          child: ClipRRect(
-                            child: SizedBox(
-                              width: canvasWidth,
-                              height: canvasHeight,
-                              child: Listener(
-                                onPointerDown: onPointerDown,
-                                onPointerMove: onPointerMove,
-                                child: CustomPaint(
-                                  painter: MyPainter(
-                                    sim: sim,
-                                    tileWidth: tileWidth,
-                                    tileHeight: tileHeight,
-                                    showGrid: showGrid,
-                                    showLevels: showLevels,
-                                    drawDirections: drawDirections,
-                                    fillColor: Colors.blueAccent.shade100,
-                                  ),
-                                ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Liquid Simulation'.toUpperCase(),
+                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                ),
+                allVertical
+                    ? painter
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: _buildDebugControls()),
+                            painter,
+                            if (!moveSizeControls)
+                              Flexible(
+                                child: _buildSizeControls(),
                               ),
-                            ),
-                          ),
+                          ],
                         ),
                       ),
-                      Flexible(
-                        child: _buildSizeControls(),
-                      ),
-                    ],
-                  ),
+                AnimatedBuilder(
+                  animation: sim,
+                  builder: (context, child) {
+                    return Text(
+                      'Current iteration: ${sim.iteration}',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    );
+                  },
                 ),
-              ),
-              AnimatedBuilder(
-                animation: sim,
-                builder: (context, child) {
-                  return Text(
-                    'Current iteration: ${sim.iteration}',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  );
-                },
-              ),
-            ],
+                if (allVertical) ...[
+                  const Divider(),
+                  _buildDebugControls(),
+                ],
+                if (moveSizeControls || allVertical) ...[
+                  const Divider(),
+                  _buildSizeControls(),
+                ],
+              ],
+            ),
           ),
         ),
       ),
