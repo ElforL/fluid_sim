@@ -3,6 +3,11 @@ name: Continuous deployment
 on:
   push:
     branches: [master]
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
 
 jobs:
   build:
