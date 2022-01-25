@@ -168,7 +168,10 @@ class MyPainter extends CustomPainter {
         if (showLevels) {
           final span = TextSpan(
             text: cell.level.toStringAsFixed(2),
-            style: const TextStyle(color: Colors.white54),
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 10,
+            ),
           );
           final painter = TextPainter(text: span, textDirection: TextDirection.ltr);
           painter.layout();
