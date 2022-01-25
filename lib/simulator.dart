@@ -130,6 +130,7 @@ class Simulator extends ChangeNotifier {
 
         Cell? below = _cellBelow(x, y);
         if (below != null && below.type == CellType.nonSolid && below.level < 1) {
+          cell.flowDirections.down = true;
           if (remainingLiquid > 1 - below.level) {
             final diff = 1 - below.level;
 
@@ -166,6 +167,8 @@ class Simulator extends ChangeNotifier {
           remainingLiquid += nextVal - remainingLiquid;
           _addDiff(x - 1, y, nextVal - left.level); // set l
           _addDiff(x + 1, y, nextVal - right.level); // set r
+          cell.flowDirections.right = true;
+          cell.flowDirections.left = true;
         } else {
           if (left == null || left.type == CellType.solid || left.level >= remainingLiquid) {
             // ignore left
@@ -177,6 +180,7 @@ class Simulator extends ChangeNotifier {
               remainingLiquid -= diff;
               _addDiff(x, y, -diff);
               _addDiff(x + 1, y, diff);
+              cell.flowDirections.right = true;
             }
           } else if (right == null || right.type == CellType.solid || right.level >= remainingLiquid) {
             // ignore right
@@ -188,6 +192,7 @@ class Simulator extends ChangeNotifier {
               remainingLiquid -= diff;
               _addDiff(x, y, -diff);
               _addDiff(x - 1, y, diff);
+              cell.flowDirections.left = true;
             }
           }
         }
@@ -204,6 +209,7 @@ class Simulator extends ChangeNotifier {
           remainingLiquid -= diff;
           _addDiff(x, y, -diff);
           _addDiff(x, y - 1, diff);
+          cell.flowDirections.up = true;
         }
       } // end of cell
     } // end of all cells
