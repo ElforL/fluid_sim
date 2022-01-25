@@ -17,4 +17,9 @@ class FlowDirections {
     right = false;
     left = false;
   }
+
+  @override
+  String toString() {
+    return 'FlowDirections(up:$up, down:$down, right:$right, left:$left)';
+  }
 }
