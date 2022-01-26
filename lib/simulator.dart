@@ -136,12 +136,12 @@ class Simulator extends ChangeNotifier {
             final diff = 1 - below.level;
 
             remainingLiquid -= diff;
-            _addDiff(x, y, -diff); // c -= (1 - b)
-            _addDiff(x, y + 1, diff); // b = 1
+            _addDiff(x, y, -diff);
+            _addDiff(x, y + 1, diff);
           } else {
             remainingLiquid = 0;
-            _addDiff(x, y, -cell.level); // c = 0
-            _addDiff(x, y + 1, cell.level); // b += c
+            _addDiff(x, y, -cell.level);
+            _addDiff(x, y + 1, cell.level);
             continue;
           }
         }
