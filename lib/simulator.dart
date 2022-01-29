@@ -104,7 +104,7 @@ class Simulator extends ChangeNotifier {
   //     * ignore that side
   //
   // 4. if only one side cell (o) < c
-  //     * λo = (c - o) / 2
+  //     * Δo = (c - o) / 2
 
   /// a single tick (iteration)
   Future<void> tick() async {
