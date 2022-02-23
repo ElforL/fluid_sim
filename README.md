@@ -2,7 +2,7 @@
 
 A 2D liquid simulator using cellular automata.
 
-Inspired by [jongallant/LiquidSimulator](https://github.com/jongallant/LiquidSimulator) but using different [rules][cd_link].
+Inspired by [jongallant/LiquidSimulator](https://github.com/jongallant/LiquidSimulator) but using different rules.
 
 [![CD badge][cd_badge]][cd_link]
 [![gh-pages badge][gh-pages badge]][gh-pages link]
